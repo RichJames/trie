@@ -1,0 +1,53 @@
+#+Title: Readme
+
+This is an effort to implement using a trie to enable searching for phrases in a text in an efficient manner.  At this point, this is only a learning exercise for me to become familiar with the creation and usage of a trie data structure and with how to leverage it to do a search fo the phrases in the trie.
+
+There is still more work to be done here.  I am not particularly happy with how I am handling reading words from a file one word at a time, so need to improve that.
+
+I also would like to make this more general so that I can provide any list of phrases and the code would them internalize them in a trie, assigning unique ids to each phrase.  At the moment, I just have a set of test phrases in the global variable =*phrases*=.
+
+Also, the entire process can be made to be smarter by properly handing case, ends of sentences and certain cases of punctuation in the input text (such as commas, colons, ampersands, etc.).  I also need to ensure it can handling searching for a term like "I.B.M.", where the periods in the name are important.
+
+I followed the guidance at the following two links to get a better understanding of how to use tries and how to implement a search using them:
+
+https://www.toptal.com/algorithms/needle-in-a-haystack-a-nifty-large-scale-text-search-algorithm
+
+https://www.toptal.com/java/the-trie-a-neglected-data-structure
+
+I have summarized the important parts of how to search using a trie here:
+
+* Logic of searching a trie
+
+- We have two indicators/pointers:
+  - One at the first word of our input text
+  - One at the root of our trie
+
+
+** How the indicators move
+
+*** The trie indicator
+
+Generally, this indicator moves depth-wise through the trie. Any time it encounters a phrase id, it should save/return that id as that means we have found the phrase associate with that id.
+
+It returns to the root in two cases:
+
+1. When it reaches the end of a branch.
+
+   This means it has found a search phrase, as every end of branch should have a phrase id.  However, I can just apply the rule that anytime any node has a phrase id, just record/return that phrase id and keep moving forward.
+
+   In other words, the mechanics of moving the indicator can be handled independently of interpreting if we found a phrase.
+
+   Interpreting if we found a phrase is simply a check on any given node we have traversed to to see if it has a phrase id.
+
+2. If none of the children of the current node matches the current word we are searching for.
+
+
+*** The input text indicator
+
+This moves forward each iteration, generally always.
+
+There is one exception: In case #2 of the trie indicator movement, we don't advance the input text indicator.
+
+This is because, while we did fail to match the phrase on that branch of the trie, it is possible that another phrase exists in the trie that starts with the word we are currently looking for.  So we need to return to searching the top of the trie for that word.
+
+   
