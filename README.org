@@ -4,9 +4,9 @@ This is an effort to implement using a trie to enable searching for phrases in a
 
 There is still more work to be done here.  I am not particularly happy with how I am handling reading words from a file one word at a time, so need to improve that.
 
-I also would like to make this more general so that I can provide any list of phrases and the code would them internalize them in a trie, assigning unique ids to each phrase.  At the moment, I just have a set of test phrases in the global variable =*phrases*=.
+I also would like to make this more general so that I can provide any list of phrases and the code would then internalize them in a trie, assigning unique ids to each phrase.  At the moment, I just have a set of test phrases in the global variable =*phrases*=.
 
-Also, the entire process can be made to be smarter by properly handing case, ends of sentences and certain cases of punctuation in the input text (such as commas, colons, ampersands, etc.).  I also need to ensure it can handling searching for a term like "I.B.M.", where the periods in the name are important.
+Also, the entire process can be made to be smarter by properly handing case, ends of sentences and certain cases of punctuation in the input text (such as commas, colons, ampersands, etc.).  I also need to ensure it can handle searching for a term like "I.B.M.", where the periods in the name are important.
 
 I followed the guidance at the following two links to get a better understanding of how to use tries and how to implement a search using them:
 
