@@ -7,32 +7,25 @@
 
 (in-package #:trie)
 
-(defparameter *phrases* (list
-                         (list 1 "forward shaft lean")
-                         (list 2 "hands leading the club")
-                         (list 3 "good contact")
-                         (list 11 "good compression") ; not expecting to find this
-                         (list 4 "setup position") ; not expecting to find this
-                         (list 5 "early extension")
-                         (list 6 "C programming")
-                         (list 7 "project manager")
-                         (list 8 "FORTRAN programmer") ;not expecting to find this
-                         (list 9 "Common Lisp")
-                         (list 10 "Common Lisp programmer")))
-
 (defstruct (tree-node (:conc-name nil))
   key
   phrase-id
   children)
 
-(defparameter *trie* (build-trie))
+(defparameter *trie* (build-trie "~/quicklisp/local-projects/rich/trie/phrases.txt"))
+(defparameter *phrases* (list))
 
-(defun build-trie ()
-  (loop :with root = (make-tree-node :key "")
-        :for phrase :in *phrases*
-        :while phrase
-        :do (trie-insert phrase root)
-        :finally (return root)))
+(defun build-trie (file)
+  (setf *phrases* (list))
+  (with-open-file (stream file)
+    (loop :with root = (make-tree-node :key "")
+          :for phrase = (read-line stream nil nil)
+          :for phrase-id :upfrom 1
+          :while phrase
+          :do (progn
+                (setf *phrases* (append (list (list phrase-id phrase)) *phrases*))
+                (trie-insert (list phrase-id phrase) root))
+          :finally (return root))))
 
 (defun trie-insert (phrase trie)
   (labels ((insert (id words root)
