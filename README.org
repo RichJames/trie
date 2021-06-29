@@ -2,9 +2,7 @@
 
 This is an effort to implement using a trie to enable searching for phrases in a text in an efficient manner.  At this point, this is only a learning exercise for me to become familiar with the creation and usage of a trie data structure and with how to leverage it to do a search fo the phrases in the trie.
 
-There is still more work to be done here.  I am not particularly happy with how I am handling reading words from a file one word at a time, so need to improve that.
-
-Also, the entire process can be made to be smarter by properly handing case, ends of sentences and certain cases of punctuation in the input text (such as commas, colons, ampersands, etc.).  I also need to ensure it can handle searching for a term like "I.B.M.", where the periods in the name are important.
+There is still more work to be done here. The entire process can be made to be smarter by properly handing case, ends of sentences and certain cases of punctuation in the input text (such as commas, colons, ampersands, etc.).  I also need to ensure it can handle searching for a term like "I.B.M.", where the periods in the name are important.
 
 I followed the guidance at the following two links to get a better understanding of how to use tries and how to implement a search using them:
 

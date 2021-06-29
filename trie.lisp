@@ -12,7 +12,6 @@
   phrase-id
   children)
 
-(defparameter *trie* (build-trie "~/quicklisp/local-projects/rich/trie/phrases.txt"))
 (defparameter *phrases* (list))
 
 (defun build-trie (file)
@@ -59,37 +58,48 @@
                  (return child))))))
 
 (defun find-matches (trie file)
-  (labels ((rec (stream word node acc)
-             (if (null word)
-                 acc
-                 (let ((find-node (find-if #'(lambda (x) (string= (key x) word)) (children node))))
-                   
-                   (cond ((and (null find-node) (equal node trie)) (rec stream
-                                                                        (get-word stream)
-                                                                        trie
-                                                                        acc))
-
-                         ((null find-node)                         (rec stream
-                                                                        word
-                                                                        trie
-                                                                        acc))
-
-                         ((null (children find-node))              (rec stream
-                                                                        (get-word stream)
-                                                                        trie
-                                                                        (if (phrase-id find-node)
-                                                                            (append (phrase-id find-node) acc)
-                                                                            acc)))
-
-                         (t                                        (rec stream
-                                                                        (get-word stream)
-                                                                        find-node
-                                                                        (if (phrase-id find-node)
-                                                                            (append (phrase-id find-node) acc)
-                                                                            acc))))))))
-    
+  (let ((words)
+        (word))
     (with-open-file (stream file)
-      (report-results (rec stream (get-word stream) trie (list))))))
+      (labels ((get-word ()
+                 (cond (words
+                        (setf word (car words)
+                              words (cdr words))
+                        (if word
+                            (string-downcase word)
+                            (get-word)))
+
+                       (t (setf words (read-line stream nil nil))
+                          (cond ((null words) nil)
+                                (t (setf words (ppcre:all-matches-as-strings "([a-zA-Z]+)" words))
+                                   (get-word))))))
+               
+               (rec (word node acc)
+                 (if (null word)
+                     acc
+                     (let ((find-node (find-if #'(lambda (x) (string= (key x) word)) (children node))))
+                       
+                       (cond ((and (null find-node) (equal node trie)) (rec (get-word)
+                                                                            trie
+                                                                            acc))
+
+                             ((null find-node)                         (rec word
+                                                                            trie
+                                                                            acc))
+
+                             ((null (children find-node))              (rec (get-word)
+                                                                            trie
+                                                                            (if (phrase-id find-node)
+                                                                                (append (phrase-id find-node) acc)
+                                                                                acc)))
+
+                             (t                                        (rec (get-word)
+                                                                            find-node
+                                                                            (if (phrase-id find-node)
+                                                                                (append (phrase-id find-node) acc)
+                                                                                acc))))))))
+        
+        (report-results (rec (get-word) trie (list)))))))
 
 (defun report-results (id-list)
   (let ((sorted-id-list (sort id-list #'<)))
@@ -98,30 +108,6 @@
           :for (phrase-id phrase-count) = result
           :do (format t "~%Found '~a' ~d times" (second (find phrase-id *phrases* :key 'car)) phrase-count))))
 
-
-(let ((words)
-      (word))
-  (defun get-word (stream)
-    (cond (words
-           (setf word (car words)
-                 words (cdr words))
-           (if word
-               (string-downcase word)
-               (get-word stream)))
-
-          (t (setf words (read-line stream nil nil))
-             (cond ((null words) nil)
-                   (t (setf words (ppcre:all-matches-as-strings "([a-zA-Z]+)" words))
-                      (get-word stream))))))
-
-  (defun reset-words-buffers ()
-    (setf words nil
-          word  nil)))
-
-(defun test-get-words (file)
-  (reset-words-buffers)
-  (with-open-file (stream file)
-
-    (loop :for word = (get-word stream)
-          :while word
-          :do (format t "~%~a" word))))
+(defun find-phrases (phrase-file file-to-search)
+  (let ((trie (build-trie phrase-file)))
+    (find-matches trie file-to-search)))
